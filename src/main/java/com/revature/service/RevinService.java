@@ -1,10 +1,20 @@
 package com.revature.service;
 
+import com.revature.connection.ConnectionFactory;
+import com.revature.model.Metamodel;
+import com.revature.repositories.PersistenceLayer;
+import com.revature.util.Database;
+
+import java.sql.Connection;
+import java.util.List;
+
 public class RevinService {
     final private static RevinService rserv = new RevinService();
+    List<Metamodel<?>> currClasses;
+    PersistenceLayer persist;
 
     private RevinService() {
-
+        persist = new PersistenceLayer(new ConnectionFactory(new Database()));
     }
 
     public static RevinService getInstance() {
@@ -12,10 +22,18 @@ public class RevinService {
     }
 
     public void addClass(Class<?> clazz) {
-        //to do
+        for (Metamodel mm : currClasses) {
+            if (mm.getClassName().equals(clazz.getName())) {
+                throw new RuntimeException("Already existing class");
+            }
+        }
+
+        Metamodel mm = new Metamodel(clazz);
+        persist.createTable(mm);
+        currClasses.add(mm);
     }
 
-    public void getList() {
+    public void getList(Class<?> clazz) {
         //to do
     }
 

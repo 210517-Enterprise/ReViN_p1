@@ -39,8 +39,13 @@ public class ConnectionFactory {
 
     }
 
-	public Connection getConnection() throws SQLException {
-		return ds.getConnection();
+	public Connection getConnection() {
+		try {
+			return ds.getConnection();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }

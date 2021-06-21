@@ -10,7 +10,7 @@ public class User {
     @ColumnField(columnName = "id", pkey = true)
     private int id;
 
-    @ColumnField(columnName = "username", unique = true)
+    @ColumnField(columnName = "username", unique = true, canBeNull = false)
     private String username;
 
     @ColumnField(columnName = "pwd", canBeNull = false)
