@@ -5,7 +5,7 @@ import com.revature.annotations.Table;
 
 import java.util.List;
 
-@Table(tableName = "User")
+@Table(tableName = "users")
 public class User {
     @ColumnField(columnName = "id", pkey = true)
     private int id;
