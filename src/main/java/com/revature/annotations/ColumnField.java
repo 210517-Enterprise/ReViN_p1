@@ -13,6 +13,8 @@ public @interface ColumnField {
 
     boolean pkey() default false;
 
+    boolean isSerial() default false;
+
     boolean canBeNull() default true;
 
     boolean fkey() default false;

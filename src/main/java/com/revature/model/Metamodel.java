@@ -6,15 +6,19 @@ import com.revature.util.Column;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Metamodel<T> {
     private Class<T> clazz;
     private List<Column> columnFields = new ArrayList<>();
+    private Map<String, String> colNameToFieldName;
     //add fields needed
 
     public Metamodel(Class<T> clazz) {
         this.clazz = clazz;
+        colNameToFieldName = new HashMap<>();
         columnFields = setColumnFields();
     }
 
@@ -22,9 +26,14 @@ public class Metamodel<T> {
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             columnFields.add(new Column(field));
+            colNameToFieldName.put(field.getAnnotation(ColumnField.class).columnName(), field.getName());
         }
 
         return columnFields;
+    }
+
+    public String getJavaName (String sqlColName) {
+        return colNameToFieldName.get(sqlColName);
     }
 
     public String getPrimaryKey() {

@@ -16,6 +16,28 @@ public class User {
     @ColumnField(columnName = "pwd", canBeNull = false)
     private String password;
 
-    @ColumnField(columnName = "account", fkey = true)
+    @ColumnField(columnName = "accounts", fkey = true)
     private List<Account> accounts;
+
+    public User() {
+        super();
+    }
+
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
+    public User(int id, String username, String password) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+    }
+
+    public User(int id, String username, String password, List<Account> accounts) {
+        this.id = id;
+        this.username = username;
+        this.password = password;
+        this.accounts = accounts;
+    }
 }

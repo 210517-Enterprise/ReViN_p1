@@ -19,6 +19,9 @@ public class Column {
         return field.getAnnotation(ColumnField.class).columnName();
     }
 
+    public String getName() {
+        return field.getName();
+    }
     public String getDatatype() {
         return field.getType().getSimpleName();
     }
@@ -27,6 +30,10 @@ public class Column {
     public String getConstraints() {
         ColumnField col = field.getAnnotation(ColumnField.class);
         StringBuilder res = new StringBuilder();
+
+        if (col.isSerial()) {
+            res.append("SERIAL ");
+        }
 
         if (col.pkey()) {
             res.append("PRIMARY KEY ");
