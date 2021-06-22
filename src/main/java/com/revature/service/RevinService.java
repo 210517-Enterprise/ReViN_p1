@@ -33,6 +33,18 @@ public class RevinService {
         currClasses.add(mm);
     }
 
+    public void addObject(Class<?> clazz, Object o) {
+        if (!o.getClass().equals(clazz)) {
+            throw new RuntimeException("Wrong class and Object");
+        }
+
+        for (Metamodel mm : currClasses) {
+            if (mm.getClassName().equals(clazz.getName())) {
+                persist.addObject(mm, o);
+            }
+        }
+    }
+
     public void getList(Class<?> clazz) {
         //to do
     }
