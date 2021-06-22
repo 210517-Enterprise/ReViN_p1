@@ -23,6 +23,6 @@ public class MetamodelTests {
     @Test
     public void test_GetTableName() {
         Metamodel mm = new Metamodel(User.class);
-        assertEquals("User", mm.getTableName());
+        assertEquals("users", mm.getTableName());
     }
 }

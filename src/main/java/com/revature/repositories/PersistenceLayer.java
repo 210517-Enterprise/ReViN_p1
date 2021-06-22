@@ -18,7 +18,7 @@ public class PersistenceLayer {
 
     public int createTable(Metamodel mm) {
         try(Connection conn = conFact.getConnection()) {
-            StringBuilder sql = new StringBuilder("CREATE TABLE " + mm.getTableName() + " (\n");
+            StringBuilder sql = new StringBuilder("CREATE TABLE " + mm.getTableName() + " (");
 
             List<Column> cols = mm.getColumns();
             for (Column col : cols) {
@@ -27,7 +27,7 @@ public class PersistenceLayer {
                 String constraints = col.getConstraints();
                 sql.append(name)
                         .append(" ")
-                        .append(datatype)
+                        .append(datatype == "int" ? "int" : "varchar(50)")
                         .append(" ")
                         .append(constraints)
                         .append(",");
@@ -38,6 +38,7 @@ public class PersistenceLayer {
             sql.append(")");
 
             System.out.println(sql.toString());
+            conn.prepareStatement(sql.toString()).execute();
         } catch (SQLException e) {
             e.printStackTrace();
         }
