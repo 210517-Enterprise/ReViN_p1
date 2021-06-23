@@ -8,6 +8,7 @@ import com.revature.util.Column;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -47,13 +48,26 @@ public class PersistenceLayer {
         return 1;
     }
 
-    public void addObject(Metamodel mm, Object newObj) {
+    /*
+     * Adds a new Object with the corresponding Metamodel
+     * @param mm The Metamodel associated with the new object
+     * @param newObj The new object to added to the table
+     * @return the id of the new object
+     */
+    public int addObject(Metamodel mm, Object newObj) {
         try(Connection conn = conFact.getConnection()) {
             StringBuilder sql = new StringBuilder("INSERT INTO " + mm.getTableName() + " (");
 
             StringBuilder numPrepared = new StringBuilder("(");
             List<Column> cols = mm.getColumns();
+
+            //Generate the ? for the prepared statement
             for (Column col : cols) {
+                //Skip if serial
+                if (col.getConstraints().contains("SERIAL")) {
+                    continue;
+                }
+
                 sql.append(col.getColName()+",");
                 numPrepared.append("?,");
             }
@@ -67,10 +81,11 @@ public class PersistenceLayer {
 
             sql.append(numPrepared);
 
-            int count = 0;
+            int count = 1;
             PreparedStatement pstmt = conn.prepareStatement(sql.toString());
+
+            //Iterate through every field
             for (Column col : cols) {
-                count++;
                 //Convert SQL col name to Java col name
                 String sqlColName = col.getColName();
                 String javaColName = mm.getJavaName(sqlColName);
@@ -81,18 +96,27 @@ public class PersistenceLayer {
                 //Access private fields
                 f.setAccessible(true);
 
-
-                //if (col.getConstraints().contains("SERIAL")) {
-                //    continue;
-                //}
+                //Skip if it's serial
+                if (col.getConstraints().contains("SERIAL")) {
+                    continue;
+                }
 
                 //Get the value associated with that field in the object to be added
                 pstmt.setObject(count, f.get(newObj));
+                count++;
             }
 
-            pstmt.execute();
+            ResultSet rs;
+
+            //Generates a value if successful
+            if ((rs = pstmt.executeQuery()) != null) {
+                rs.next();
+                int id = rs.getInt(1);
+                return id;
+            }
         } catch (SQLException | NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();
         }
+        return -1;
     }
 }

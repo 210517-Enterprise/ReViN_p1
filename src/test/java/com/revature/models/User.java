@@ -7,7 +7,7 @@ import java.util.List;
 
 @Table(tableName = "users")
 public class User {
-    @ColumnField(columnName = "id", pkey = true)
+    @ColumnField(columnName = "id", pkey = true, isSerial = true)
     private int id;
 
     @ColumnField(columnName = "username", unique = true, canBeNull = false)
