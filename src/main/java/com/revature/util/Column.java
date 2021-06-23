@@ -23,7 +23,40 @@ public class Column {
         return field.getName();
     }
     public String getDatatype() {
-        return field.getType().getSimpleName();
+
+        String javaType = field.getType().getSimpleName();
+        String sqlType = "";
+        switch (javaType) {
+            case "Integer":
+            case "int":
+            case "Byte":
+            case "byte":
+            case "Short":
+            case "short":
+                sqlType = "INT";
+                break;
+            case "Long":
+            case "long":
+            case "Float":
+            case "float":
+            case "Double":
+            case "double":
+                sqlType = "NUMERIC";
+                break;
+            case "Boolean":
+            case "boolean":
+                sqlType = "BOOLEAN";
+                break;
+            case "Character":
+            case "char":
+                sqlType = "CHAR";
+                break;
+            default:
+                sqlType = "TEXT";
+                break;
+        }
+
+        return sqlType;
     }
 
     //do all constraints, etc.

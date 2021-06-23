@@ -19,6 +19,12 @@ public class User {
     @ColumnField(columnName = "accounts", fkey = true)
     private List<Account> accounts;
 
+    @ColumnField(columnName = "citizen")
+    private boolean isCitizen = true;
+
+    @ColumnField(columnName = "net_worth")
+    private double netWorth = 1_000_000;
+
     public User() {
         super();
     }

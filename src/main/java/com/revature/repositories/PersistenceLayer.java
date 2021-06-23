@@ -29,7 +29,7 @@ public class PersistenceLayer {
                 String constraints = col.getConstraints();
                 sql.append(name)
                         .append(" ")
-                        .append(datatype == "int" ? "int" : "varchar(50)")
+                        .append(datatype)
                         .append(" ")
                         .append(constraints)
                         .append(",");
