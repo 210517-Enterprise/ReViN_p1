@@ -23,6 +23,10 @@ public class Column {
         return field.getName();
     }
     public String getDatatype() {
+        ColumnField col = field.getAnnotation(ColumnField.class);
+        if (col.isSerial()) {
+            return "";
+        }
 
         String javaType = field.getType().getSimpleName();
         String sqlType = "";

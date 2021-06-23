@@ -24,4 +24,15 @@ public class PersistenceLayerTests {
         Metamodel mm = new Metamodel(User.class);
         persit.addObject(mm, u);
     }
+
+    @Test
+    public void test_AddSerialUsersToTable() {
+        User u = new User("Joe", "Doe");
+        User u2 = new User("Mary", "Jane");
+        User u3 = new User("Karen", "Ashley");
+        Metamodel mm = new Metamodel(User.class);
+        persit.addObject(mm, u);
+        persit.addObject(mm, u2);
+        persit.addObject(mm, u3);
+    }
 }
