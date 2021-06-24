@@ -19,5 +19,7 @@ public @interface ColumnField {
 
     boolean fkey() default false;
 
+    Class<?> fClass() default Object.class;
+
     boolean unique() default false;
 }

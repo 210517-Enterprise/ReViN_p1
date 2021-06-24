@@ -1,5 +1,6 @@
 package com.revature;
 
+import com.revature.models.Account;
 import org.junit.Test;
 
 import com.revature.connection.ConnectionFactory;
@@ -16,6 +17,19 @@ public class PersistenceLayerTests {
 
         Metamodel mm = new Metamodel(User.class);
         persist.createTable(mm);
+    }
+
+    @Test
+    public void test_CreateTableWithForeignKey() {
+        Metamodel mm = new Metamodel(User.class);
+        Metamodel mm2 = new Metamodel(Account.class);
+        persist.createTable(mm);
+        persist.createTable(mm2);
+
+        User u = new User("John", "Doe");
+        Account a = new Account(1, 1_000_000.00);
+        persist.addObject(mm, u);
+        persist.addObject(mm2, a);
     }
 
     @Test

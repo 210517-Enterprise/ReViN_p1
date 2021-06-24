@@ -1,8 +1,11 @@
 package com.revature.util;
 
 import com.revature.annotations.ColumnField;
+import com.revature.annotations.Table;
+import com.revature.model.Metamodel;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 public class Column {
     private Field field;
@@ -76,12 +79,19 @@ public class Column {
             res.append("PRIMARY KEY ");
         }
 
-        if (col.canBeNull() == false) {
+        if (!col.canBeNull()) {
             res.append("NOT NULL ");
         }
 
         if (col.unique()) {
             res.append("UNIQUE ");
+        }
+
+        if (col.fkey()) {
+            Metamodel tempMeta = new Metamodel(field.getAnnotation(ColumnField.class).fClass());
+            String tableName = tempMeta.getTableName();
+            String pkName = tempMeta.getPrimaryKey();
+            res.append("REFERENCES " + tableName + "(" + pkName + ") ");
         }
 
         return res.toString();

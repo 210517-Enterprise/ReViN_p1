@@ -104,14 +104,7 @@ public class PersistenceLayer {
 				count++;
 			}
 
-			ResultSet rs;
-
-			// Generates a value if successful
-			if ((rs = pstmt.executeQuery()) != null) {
-				rs.next();
-				int id = rs.getInt(1);
-				return id;
-			}
+			return pstmt.executeUpdate();
 		} catch (SQLException | NoSuchFieldException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
