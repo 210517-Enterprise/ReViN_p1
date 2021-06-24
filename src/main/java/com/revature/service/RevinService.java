@@ -50,6 +50,7 @@ public class RevinService {
     }
 
     public boolean addObject(Class<?> clazz, Object o) {
+        Class<?> temp = o.getClass();
         if (!classIsPersisted(clazz) || !o.getClass().equals(clazz)) {
             return false;
         }
@@ -95,6 +96,7 @@ public class RevinService {
         for (Metamodel mm : currClasses) {
             if (mm.getClassName().equals(clazz.getName())) {
                 //persist.updateObject(mm, o);
+                dbChanged = true;
             }
         }
 
@@ -110,10 +112,8 @@ public class RevinService {
             if (mm.getClassName().equals(clazz.getName())) {
                 persist.deleteObject(mm, o);
                 dbChanged = true;
-                cache.get(clazz.getName()).remove(o);
             }
         }
-
 
         return true;
     }

@@ -21,4 +21,20 @@ public class ServiceTests {
         assertEquals(true, service.addClass(Account.class));
         assertEquals(false, service.addClass(User.class));
     }
+
+    @Test
+    public void test_AddingWrongObject() {
+        service.addClass(User.class);
+        service.addClass(Account.class);
+        User u = new User("Joey", "Wheeler");
+        assertEquals(false, service.addObject(Account.class, u));
+    }
+
+    @Test
+    public void test_AddingCorrectObject() {
+        service.addClass(User.class);
+        service.addClass(Account.class);
+        User u = new User("Joey", "Wheeler");
+        assertEquals(true, service.addObject(User.class, u));
+    }
 }
