@@ -1,4 +1,4 @@
-package com.revature;
+package com.revature.tests.persistence;
 
 import com.revature.models.Account;
 import org.junit.FixMethodOrder;
@@ -17,19 +17,16 @@ import static org.junit.Assert.assertEquals;
 public class PersistenceLayerTests {
 	PersistenceLayer persist = new PersistenceLayer(new ConnectionFactory(new Database()));
 	Metamodel mm = new Metamodel(User.class);
+	Metamodel mm2 = new Metamodel(Account.class);
 	
     @Test
-    public void test_0CreateTable() {
+    public void test_0CreateTables() {
         persist.createTable(mm);
+        persist.createTable(mm2);
     }
 
     @Test
-    public void test_CreateTableWithForeignKey() {
-        Metamodel mm = new Metamodel(User.class);
-        Metamodel mm2 = new Metamodel(Account.class);
-        persist.createTable(mm);
-        persist.createTable(mm2);
-
+    public void test_1CreateTableWithForeignKey() {
         User u = new User("John", "Doe");
         Account a = new Account(1, 1_000_000.00);
         int user_id = persist.addObject(mm, u);
@@ -37,11 +34,6 @@ public class PersistenceLayerTests {
 
         assertEquals(1, user_id);
         assertEquals(1, acc_id);
-    }
-
-    public void test_1AddUserToTable() {
-        User u = new User(1,"John", "Doe");
-        persist.addObject(mm, u);
     }
 
     @Test
@@ -59,13 +51,46 @@ public class PersistenceLayerTests {
     	persist.deleteObject(mm, new User(4, "Karen", "Ashley"));
     }
     
+    public static void printUser(User u) {
+    	System.out.println("[id = " + u.getId() 
+		 + ", username = " + u.getUsername() 
+		 + ", password = " + u.getPassword()
+		 + ", isCitizen = " + u.isCitizen()
+		 + ", accounts = " + u.getAccounts()
+		 + ", netWorth = " + u.getNetWorth() +"]");
+    }
+    
     @Test
     public void test_4readAllUser() {
-    	persist.readAllObject(mm);
+    	for (Object o : persist.readAllObject(mm))
+    		printUser((User) o);
     }
     
     @Test
     public void test_5readUser() {
-    	persist.readObject(mm, 3);
+    	printUser((User) persist.readObject(mm, 3));
+    }
+    
+    @Test
+    public void test_6addSerialAccountsToTable() {
+    	persist.addObject(mm2, new Account(2, 10));
+    	persist.addObject(mm2, new Account(3, 20));
+    }
+    
+    public static void printAccount(Account a) {
+    	System.out.println("[id = " + a.getId()
+    					  +", AccOwner = " + a.getAccOwner()
+    					  +", balance = " + a.getBalance() + "]");
+    }
+    
+    @Test
+    public void test_7readAllAccount() {
+    	for (Object o : persist.readAllObject(mm2))
+    		printAccount((Account) o);
+    }
+    
+    @Test
+    public void test_8readAccount() {
+    	printAccount((Account) persist.readObject(mm2, 1));
     }
 }

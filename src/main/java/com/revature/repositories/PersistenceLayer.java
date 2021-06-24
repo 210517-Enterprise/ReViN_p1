@@ -3,6 +3,7 @@ package com.revature.repositories;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -207,9 +208,9 @@ public class PersistenceLayer {
 		}
 	}
 	
-	public List<String> readAllObject(Metamodel mm) {
+	public List<Object> readAllObject(Metamodel mm) {
 		
-		List<String> objects = new ArrayList<String>();
+		List<Object> objects = new ArrayList<Object>();
 		
 		try (Connection conn = conFact.getConnection()) {
 			String sql = "SELECT * FROM " + mm.getTableName();
@@ -219,10 +220,68 @@ public class PersistenceLayer {
 			
 			int i = 0;
 			while(rs.next()) {
-				String object = "";
+				
+				Object object = null;
+				try {
+					object = Class.forName(mm.getClassName()).getDeclaredConstructor().newInstance();
+				} catch (InstantiationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NoSuchMethodException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SecurityException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 				List<Column> cols = mm.getColumns();
 				for (Column col : cols) {
-					object += col.getColName()+"="+rs.getString(col.getColName())+":";
+					//object += col.getColName()+"="+rs.getString(col.getColName())+":";
+					Field field = null;
+					try {
+						field = Class.forName(mm.getClassName()).getDeclaredField(mm.getJavaName(col.getColName()));
+					} catch (NoSuchFieldException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (SecurityException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					field.setAccessible(true);
+					try {
+						if (field.getType().getName().equals("double")){
+							field.set(object, ((BigDecimal) rs.getObject(col.getColName())).doubleValue());
+						}else if (field.getType().getName().equals("float")){
+							field.set(object, ((BigDecimal) rs.getObject(col.getColName())).floatValue());
+						}else if (field.getType().getName().equals("long")){
+							field.set(object, ((BigDecimal) rs.getObject(col.getColName())).longValue());
+						}else {
+							field.set(object, rs.getObject(col.getColName()));
+						}
+					} catch (IllegalArgumentException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				System.out.println(object);
 				objects.add(object);
@@ -237,8 +296,8 @@ public class PersistenceLayer {
 		return objects;
 	}
 	
-	public String readObject(Metamodel mm, int primaryKey) {
-		String object = "";
+	public Object readObject(Metamodel mm, int primaryKey) {
+		Object object = null;
 		
 		try (Connection conn = conFact.getConnection()) {
 			String sql = "SELECT * FROM " + mm.getTableName() + " WHERE " + mm.getPrimaryKey() + " = " + primaryKey;
@@ -248,9 +307,66 @@ public class PersistenceLayer {
 			
 			int i = 0;
 			while(rs.next()) {
+				try {
+					object = Class.forName(mm.getClassName()).getDeclaredConstructor().newInstance();
+				} catch (InstantiationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvocationTargetException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NoSuchMethodException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SecurityException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 				List<Column> cols = mm.getColumns();
 				for (Column col : cols) {
-					object += col.getColName()+"="+rs.getString(col.getColName())+":";
+					//object += col.getColName()+"="+rs.getString(col.getColName())+":";
+					Field field = null;
+					try {
+						field = Class.forName(mm.getClassName()).getDeclaredField(mm.getJavaName(col.getColName()));
+					} catch (NoSuchFieldException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (SecurityException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					field.setAccessible(true);
+					try {
+						if (field.getType().getName().equals("double")){
+							field.set(object, ((BigDecimal) rs.getObject(col.getColName())).doubleValue());
+						}else if (field.getType().getName().equals("float")){
+							field.set(object, ((BigDecimal) rs.getObject(col.getColName())).floatValue());
+						}else if (field.getType().getName().equals("long")){
+							field.set(object, ((BigDecimal) rs.getObject(col.getColName())).longValue());
+						}else {
+							field.set(object, rs.getObject(col.getColName()));
+						}
+					} catch (IllegalArgumentException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				System.out.println(object);
 				i++;

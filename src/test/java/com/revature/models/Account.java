@@ -29,4 +29,30 @@ public class Account {
         this.accOwner = accOwner;
         this.balance = balance;
     }
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public int getAccOwner() {
+		return accOwner;
+	}
+
+	public void setAccOwner(int accOwner) {
+		this.accOwner = accOwner;
+	}
+
+	public double getBalance() {
+		return balance;
+	}
+
+	public void setBalance(double balance) {
+		this.balance = balance;
+	}
+    
+    
 }
