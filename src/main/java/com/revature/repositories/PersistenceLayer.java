@@ -97,7 +97,7 @@ public class PersistenceLayer {
 
 				// Grab the specific field
 				Field f = newObj.getClass().getDeclaredField(javaColName);
-				
+
 				// Access private fields
 				f.setAccessible(true);
 				// Skip if it's serial
@@ -171,7 +171,7 @@ public class PersistenceLayer {
 		try (Connection conn = conFact.getConnection()) {
 			String sql = "DELETE FROM " + mm.getTableName() + " WHERE " + mm.getPrimaryKey() + "= ?";
 
-			PreparedStatement pstmt = conn.prepareStatement(sql.toString());			
+			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
 			pstmt.setInt(1, primaryKey);
 			System.out.println(pstmt);
 			pstmt.execute();
@@ -208,9 +208,7 @@ public class PersistenceLayer {
 			int index = sql.lastIndexOf(", ");
 			sql.delete(index, index + 2);
 			sql.append(qualifier);
-			
-			System.out.println(sql);
-			
+
 			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
 
 			int count = 1;
@@ -227,7 +225,6 @@ public class PersistenceLayer {
 						fToInsert.setAccessible(true);
 					}
 					insert = fToInsert.get(objToUpdate);
-					//System.out.println(insert);
 				} catch (NoSuchFieldException | IllegalAccessException e) {
 					e.printStackTrace();
 				}
@@ -249,7 +246,7 @@ public class PersistenceLayer {
 			return true;
 
 		} catch (SQLException | SecurityException | IllegalArgumentException | NullPointerException e) {
-			// TODO Auto-generated catch block
+
 			e.printStackTrace();
 		}
 		return false;
