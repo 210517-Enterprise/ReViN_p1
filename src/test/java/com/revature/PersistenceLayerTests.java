@@ -13,17 +13,16 @@ import com.revature.util.Database;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PersistenceLayerTests {
 	PersistenceLayer persist = new PersistenceLayer(new ConnectionFactory(new Database()));
+	Metamodel mm = new Metamodel(User.class);
 	
     @Test
     public void test_0CreateTable() {
-        Metamodel mm = new Metamodel(User.class);
         persist.createTable(mm);
     }
 
     @Test
     public void test_1AddUserToTable() {
         User u = new User(1,"John", "Doe");
-        Metamodel mm = new Metamodel(User.class);
         persist.addObject(mm, u);
     }
 
@@ -32,11 +31,13 @@ public class PersistenceLayerTests {
         User u = new User("Joe", "Doe");
         User u2 = new User("Mary", "Jane");
         User u3 = new User("Karen", "Ashley");
-        Metamodel mm = new Metamodel(User.class);
         persist.addObject(mm, u);
         persist.addObject(mm, u2);
         persist.addObject(mm, u3);
     }
     
-    
+    @Test
+    public void test_3DeleteUser() {
+    	persist.deleteObject(mm, new User(4, "Karen", "Ashley"));
+    }
 }
