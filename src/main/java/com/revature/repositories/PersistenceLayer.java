@@ -167,12 +167,12 @@ public class PersistenceLayer {
 		return id;
 	}
 
-	public void deleteObject(Metamodel mm, Object o) {
+	public void deleteObject(Metamodel mm, int primaryKey) {
 		try (Connection conn = conFact.getConnection()) {
 			String sql = "DELETE FROM " + mm.getTableName() + " WHERE " + mm.getPrimaryKey() + "= ?";
 
-			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-			pstmt.setInt(1, getPrimaryKey(mm, o));
+			PreparedStatement pstmt = conn.prepareStatement(sql.toString());			
+			pstmt.setInt(1, primaryKey);
 			System.out.println(pstmt);
 			pstmt.execute();
 
