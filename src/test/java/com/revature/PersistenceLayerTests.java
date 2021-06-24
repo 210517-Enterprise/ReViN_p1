@@ -45,4 +45,9 @@ public class PersistenceLayerTests {
     public void test_4readAllUser() {
     	persist.readAllObject(mm);
     }
+    
+    @Test
+    public void test_5readUser() {
+    	persist.readObject(mm, 3);
+    }
 }

@@ -241,4 +241,30 @@ public class PersistenceLayer {
 		}
 		return objects;
 	}
+	
+	public String readObject(Metamodel mm, int primaryKey) {
+		String object = "";
+		
+		try (Connection conn = conFact.getConnection()) {
+			String sql = "SELECT * FROM " + mm.getTableName() + " WHERE " + mm.getPrimaryKey() + " = " + primaryKey;
+			System.out.println(sql);
+			ResultSet rs = conn.prepareStatement(sql).executeQuery();
+			System.out.println(rs);
+			
+			int i = 0;
+			while(rs.next()) {
+				List<Column> cols = mm.getColumns();
+				for (Column col : cols) {
+					object += col.getColName()+"="+rs.getString(col.getColName())+":";
+				}
+				System.out.println(object);
+				i++;
+			}
+			System.out.println("rs.next call count " + i);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return object;
+	}
 }
