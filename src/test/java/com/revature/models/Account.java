@@ -9,7 +9,7 @@ public class Account {
     @ColumnField(columnName = "id", pkey = true, isSerial = true)
     private int id;
 
-    @ColumnField(columnName = "accOwner", fkey = true, fClass = User.class)
+    @ColumnField(columnName = "acc_owner", fkey = true, fClass = User.class)
     private int accOwner;
 
     @ColumnField(columnName = "balance")

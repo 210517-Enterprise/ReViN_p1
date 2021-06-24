@@ -252,7 +252,7 @@ public class PersistenceLayer {
 					//object += col.getColName()+"="+rs.getString(col.getColName())+":";
 					Field field = null;
 					try {
-						field = Class.forName(mm.getClassName()).getDeclaredField(col.getColName());
+						field = Class.forName(mm.getClassName()).getDeclaredField(mm.getJavaName(col.getColName()));
 					} catch (NoSuchFieldException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -333,7 +333,7 @@ public class PersistenceLayer {
 					//object += col.getColName()+"="+rs.getString(col.getColName())+":";
 					Field field = null;
 					try {
-						field = Class.forName(mm.getClassName()).getDeclaredField(col.getColName());
+						field = Class.forName(mm.getClassName()).getDeclaredField(mm.getJavaName(col.getColName()));
 					} catch (NoSuchFieldException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
