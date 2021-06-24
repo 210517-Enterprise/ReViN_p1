@@ -1,4 +1,4 @@
-package com.revature;
+package com.revature.tests.services;
 
 import com.revature.models.Account;
 import com.revature.models.User;

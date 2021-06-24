@@ -1,4 +1,4 @@
-package com.revature;
+package com.revature.tests.persistence;
 
 import com.revature.models.Account;
 import org.junit.FixMethodOrder;
@@ -17,19 +17,16 @@ import static org.junit.Assert.assertEquals;
 public class PersistenceLayerTests {
 	PersistenceLayer persist = new PersistenceLayer(new ConnectionFactory(new Database()));
 	Metamodel mm = new Metamodel(User.class);
+	Metamodel mm2 = new Metamodel(Account.class);
 	
     @Test
-    public void test_0CreateTable() {
+    public void test_0CreateTables() {
         persist.createTable(mm);
+        persist.createTable(mm2);
     }
 
     @Test
     public void test_1CreateTableWithForeignKey() {
-        Metamodel mm = new Metamodel(User.class);
-        Metamodel mm2 = new Metamodel(Account.class);
-        persist.createTable(mm);
-        persist.createTable(mm2);
-
         User u = new User("John", "Doe");
         Account a = new Account(1, 1_000_000.00);
         int user_id = persist.addObject(mm, u);
@@ -72,5 +69,11 @@ public class PersistenceLayerTests {
     @Test
     public void test_5readUser() {
     	printUser((User) persist.readObject(mm, 3));
+    }
+    
+    @Test
+    public void test_6addSerialAccountsToTable() {
+    	persist.addObject(mm2, new Account(2, 10));
+    	persist.addObject(mm2, new Account(3, 20));
     }
 }
