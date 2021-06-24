@@ -16,7 +16,7 @@ public class User {
     @ColumnField(columnName = "pwd", canBeNull = false)
     private String password;
 
-    @ColumnField(columnName = "accounts", fkey = true)
+    @ColumnField(columnName = "accounts")
     private List<Account> accounts;
 
     @ColumnField(columnName = "citizen")

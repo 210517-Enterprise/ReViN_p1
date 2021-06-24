@@ -1,5 +1,6 @@
 package com.revature;
 
+import com.revature.models.Account;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -9,6 +10,8 @@ import com.revature.model.Metamodel;
 import com.revature.models.User;
 import com.revature.repositories.PersistenceLayer;
 import com.revature.util.Database;
+
+import static org.junit.Assert.assertEquals;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PersistenceLayerTests {
@@ -21,6 +24,21 @@ public class PersistenceLayerTests {
     }
 
     @Test
+    public void test_CreateTableWithForeignKey() {
+        Metamodel mm = new Metamodel(User.class);
+        Metamodel mm2 = new Metamodel(Account.class);
+        persist.createTable(mm);
+        persist.createTable(mm2);
+
+        User u = new User("John", "Doe");
+        Account a = new Account(1, 1_000_000.00);
+        int user_id = persist.addObject(mm, u);
+        int acc_id = persist.addObject(mm2, a);
+
+        assertEquals(1, user_id);
+        assertEquals(1, acc_id);
+    }
+
     public void test_1AddUserToTable() {
         User u = new User(1,"John", "Doe");
         persist.addObject(mm, u);

@@ -57,6 +57,7 @@ public class PersistenceLayer {
 	public int addObject(Metamodel mm, Object newObj) {
 		try (Connection conn = conFact.getConnection()) {
 			StringBuilder sql = new StringBuilder("INSERT INTO " + mm.getTableName() + " (");
+			String tablePK = mm.getTableName() + "." + mm.getPrimaryKey();
 
 			StringBuilder numPrepared = new StringBuilder("(");
 			List<Column> cols = mm.getColumns();
@@ -77,11 +78,12 @@ public class PersistenceLayer {
 			sql.append(") VALUES ");
 
 			numPrepared.deleteCharAt(numPrepared.length() - 1);
-			numPrepared.append(") RETURNING " + mm.getTableName() + ".id");
+			numPrepared.append(")");
 
 			sql.append(numPrepared);
 
 			int count = 1;
+			sql.append(" RETURNING " + tablePK);
 			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
 
 			// Iterate through every field
@@ -105,17 +107,10 @@ public class PersistenceLayer {
 				pstmt.setObject(count, f.get(newObj));
 				count++;
 			}
-			
-			System.out.println(pstmt);
-			ResultSet rs;
 
-			// Generates a value if successful
-			if ((rs = pstmt.executeQuery()) != null) {
-				rs.next();
-				int id = rs.getInt(1);
-				System.out.println("The id returned from insert is "+id);
-				return id;
-			}
+			ResultSet rs = pstmt.executeQuery();
+			rs.next();
+			return rs.getInt(1);
 		} catch (SQLException | NoSuchFieldException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
