@@ -48,11 +48,11 @@ public class PersistenceLayer {
 
 	/*
 	 * Adds a new Object with the corresponding Metamodel
-	 * 
+	 *
 	 * @param mm The Metamodel associated with the new object
-	 * 
+	 *
 	 * @param newObj The new object to added to the table
-	 * 
+	 *
 	 * @return the id of the new object
 	 */
 	public int addObject(Metamodel mm, Object newObj) {
@@ -117,7 +117,7 @@ public class PersistenceLayer {
 		}
 		return -1;
 	}
-	
+
 	public static int getPrimaryKey(Metamodel mm, Object o) {
 		int id = 0;
 		try {
@@ -146,8 +146,8 @@ public class PersistenceLayer {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
+
+
 //		We could also set the PrimaryKey to be public, but then User, etc. would not be a bean 			
 //		try {
 //			//This fails because the id field is private
@@ -163,7 +163,7 @@ public class PersistenceLayer {
 //		} catch (ClassNotFoundException e) {
 //			e.printStackTrace();
 //		}
-		
+
 		return id;
 	}
 
@@ -171,7 +171,7 @@ public class PersistenceLayer {
 		try (Connection conn = conFact.getConnection()) {
 			String sql = "DELETE FROM " + mm.getTableName() + " WHERE " + mm.getPrimaryKey() + "= ?";
 
-			PreparedStatement pstmt = conn.prepareStatement(sql.toString());			
+			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
 			pstmt.setInt(1, getPrimaryKey(mm, o));
 			System.out.println(pstmt);
 			pstmt.execute();
@@ -191,12 +191,12 @@ public class PersistenceLayer {
 				if(col.getColName().equals(objToUpdate)){
 					String sql = "UPDATE " + mm.getTableName() + " SET " + col.getColName() + "= ? WHERE "
 							+ mm.getPrimaryKey() + "= ?";
-					
+
 					PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-					
+
 					pstmt.setObject(1, valueForUpdate);
 					pstmt.setInt(2, getPrimaryKey(mm, objToUpdate));
-					
+
 					pstmt.executeQuery();
 				}
 			}
@@ -207,175 +207,91 @@ public class PersistenceLayer {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public List<Object> readAllObject(Metamodel mm) {
-		
-		List<Object> objects = new ArrayList<Object>();
-		
+		List<Object> objects = new ArrayList<>();
+
 		try (Connection conn = conFact.getConnection()) {
 			String sql = "SELECT * FROM " + mm.getTableName();
 			System.out.println(sql);
 			ResultSet rs = conn.prepareStatement(sql).executeQuery();
 			System.out.println(rs);
-			
+
 			int i = 0;
 			while(rs.next()) {
-				
-				Object object = null;
-				try {
-					object = Class.forName(mm.getClassName()).getDeclaredConstructor().newInstance();
-				} catch (InstantiationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (NoSuchMethodException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SecurityException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
+				Object object = Class.forName(mm.getClassName()).getDeclaredConstructor().newInstance();
+
 				List<Column> cols = mm.getColumns();
 				for (Column col : cols) {
-					//object += col.getColName()+"="+rs.getString(col.getColName())+":";
-					Field field = null;
-					try {
-						field = Class.forName(mm.getClassName()).getDeclaredField(mm.getJavaName(col.getColName()));
-					} catch (NoSuchFieldException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (SecurityException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (ClassNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					
+					String sqlColName = col.getColName();
+					String javaColName = mm.getJavaName(sqlColName);
+
+					Field field = Class.forName(mm.getClassName()).getDeclaredField(javaColName);
 					field.setAccessible(true);
-					try {
-						if (field.getType().getName().equals("double")){
-							field.set(object, ((BigDecimal) rs.getObject(col.getColName())).doubleValue());
-						}else if (field.getType().getName().equals("float")){
-							field.set(object, ((BigDecimal) rs.getObject(col.getColName())).floatValue());
-						}else if (field.getType().getName().equals("long")){
-							field.set(object, ((BigDecimal) rs.getObject(col.getColName())).longValue());
-						}else {
-							field.set(object, rs.getObject(col.getColName()));
-						}
-					} catch (IllegalArgumentException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IllegalAccessException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+
+					if (field.getType().getName().equals("double")){
+						field.set(object, ((BigDecimal) rs.getObject(sqlColName)).doubleValue());
+					}else if (field.getType().getName().equals("float")){
+						field.set(object, ((BigDecimal) rs.getObject(sqlColName)).floatValue());
+					}else if (field.getType().getName().equals("long")){
+						field.set(object, ((BigDecimal) rs.getObject(sqlColName)).longValue());
+					}else {
+						field.set(object, rs.getObject(sqlColName));
 					}
 				}
 				System.out.println(object);
 				objects.add(object);
-				//System.out.println(rs.getInt("id") + " " + rs.getString("username") + " " + rs.getString("pwd") + " " + rs.getObject("accounts") + " " + rs.getBoolean("citizen") + " " + rs.getInt("net_worth"));
 				i++;
 			}
 			System.out.println("rs.next call count " + i);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+		} catch (SQLException | ClassNotFoundException | NoSuchMethodException | NoSuchFieldException
+				| InvocationTargetException | InstantiationException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
 		return objects;
 	}
-	
+
 	public Object readObject(Metamodel mm, int primaryKey) {
 		Object object = null;
-		
+
 		try (Connection conn = conFact.getConnection()) {
 			String sql = "SELECT * FROM " + mm.getTableName() + " WHERE " + mm.getPrimaryKey() + " = " + primaryKey;
 			System.out.println(sql);
 			ResultSet rs = conn.prepareStatement(sql).executeQuery();
 			System.out.println(rs);
-			
+
 			int i = 0;
 			while(rs.next()) {
-				try {
-					object = Class.forName(mm.getClassName()).getDeclaredConstructor().newInstance();
-				} catch (InstantiationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (NoSuchMethodException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SecurityException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ClassNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
+				object = Class.forName(mm.getClassName()).getDeclaredConstructor().newInstance();
+
 				List<Column> cols = mm.getColumns();
 				for (Column col : cols) {
-					//object += col.getColName()+"="+rs.getString(col.getColName())+":";
-					Field field = null;
-					try {
-						field = Class.forName(mm.getClassName()).getDeclaredField(mm.getJavaName(col.getColName()));
-					} catch (NoSuchFieldException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (SecurityException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (ClassNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					
+					String sqlColName = col.getColName();
+					String javaColName = mm.getJavaName(sqlColName);
+
+					Field field = Class.forName(mm.getClassName()).getDeclaredField(javaColName);
 					field.setAccessible(true);
-					try {
-						if (field.getType().getName().equals("double")){
-							field.set(object, ((BigDecimal) rs.getObject(col.getColName())).doubleValue());
-						}else if (field.getType().getName().equals("float")){
-							field.set(object, ((BigDecimal) rs.getObject(col.getColName())).floatValue());
-						}else if (field.getType().getName().equals("long")){
-							field.set(object, ((BigDecimal) rs.getObject(col.getColName())).longValue());
-						}else {
-							field.set(object, rs.getObject(col.getColName()));
-						}
-					} catch (IllegalArgumentException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IllegalAccessException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+
+					if (field.getType().getName().equals("double")) {
+						field.set(object, ((BigDecimal) rs.getObject(sqlColName)).doubleValue());
+					} else if (field.getType().getName().equals("float")) {
+						field.set(object, ((BigDecimal) rs.getObject(sqlColName)).floatValue());
+					} else if (field.getType().getName().equals("long")) {
+						field.set(object, ((BigDecimal) rs.getObject(sqlColName)).longValue());
+					} else {
+						field.set(object, rs.getObject(sqlColName));
 					}
 				}
+
 				System.out.println(object);
 				i++;
 			}
 			System.out.println("rs.next call count " + i);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+		} catch (SQLException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException
+				| NoSuchFieldException | InstantiationException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
+
 		return object;
 	}
 }
