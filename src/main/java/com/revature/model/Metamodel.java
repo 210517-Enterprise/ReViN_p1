@@ -32,6 +32,23 @@ public class Metamodel<T> {
         return columnFields;
     }
 
+    public void setPrimaryKey(Class<T> clazz, T obj, int id) {
+        try {
+            for (Column col : columnFields) {
+                if (col.getConstraints().contains("PRIMARY KEY")) {
+                    Field f = clazz.getDeclaredField(getJavaName(col.getColName()));
+                    f.setAccessible(true);
+                    f.set(obj, id);
+                    break;
+                }
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+    }
+
     public String getJavaName (String sqlColName) {
         return colNameToFieldName.get(sqlColName);
     }

@@ -3,8 +3,10 @@ package com.revature.service;
 import com.revature.connection.ConnectionFactory;
 import com.revature.model.Metamodel;
 import com.revature.repositories.PersistenceLayer;
+import com.revature.util.Column;
 import com.revature.util.Database;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,7 +58,8 @@ public class RevinService {
 
         for (Metamodel mm : currClasses) {
             if (mm.getClassName().equals(clazz.getName())) {
-                persist.addObject(mm, o);
+                int id = persist.addObject(mm, o);
+                mm.setPrimaryKey(clazz, o, id);
                 dbChanged = true;
             }
         }
