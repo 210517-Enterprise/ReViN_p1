@@ -120,58 +120,62 @@ public class PersistenceLayer {
 		}
 		return -1;
 	}
+	
+	public static int getPrimaryKey(Metamodel mm, Object o) {
+		int id = 0;
+		try {
+			for (Method m : Class.forName(mm.getClassName()).getMethods()) {
+				//This assumes that getId is the method for getting the PrimaryKey of an object
+				//Maybe there is some way that we could create/set an annotation that would
+				// specify the method which returns the PrimaryKey
+				if (m.getName().equals("getId")) {
+					id = (int) m.invoke(o);
+					break;
+				}
+			}
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+//		We could also set the PrimaryKey to be public, but then User, etc. would not be a bean 			
+//		try {
+//			//This fails because the id field is private
+//			id = Class.forName(mm.getClassName()).getDeclaredField(mm.getPrimaryKey()).getInt(o);
+//		} catch (IllegalArgumentException e) {
+//			e.printStackTrace();
+//		} catch (IllegalAccessException e) {
+//			e.printStackTrace();
+//		} catch (NoSuchFieldException e) {
+//			e.printStackTrace();
+//		} catch (SecurityException e) {
+//			e.printStackTrace();
+//		} catch (ClassNotFoundException e) {
+//			e.printStackTrace();
+//		}
+		
+		return id;
+	}
 
 	public void deleteObject(Metamodel mm, Object o) {
 		try (Connection conn = conFact.getConnection()) {
 			String sql = "DELETE FROM " + mm.getTableName() + " WHERE " + mm.getPrimaryKey() + "= ?";
 
-			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-			int id = 0;
-			try {
-				for (Method m : Class.forName(mm.getClassName()).getMethods()) {
-					//This assumes that getId is the method for getting the PrimaryKey of an object
-					//Maybe there is some way that we could create/set an annotation that would
-					// specify the method which returns the PrimaryKey
-					if (m.getName().equals("getId")) {
-						id = (int) m.invoke(o);
-						break;
-					}
-				}
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			
-//			We could also set the PrimaryKey to be public, but then User, etc. would not be a bean 			
-//			try {
-//				//This fails because the id field is private
-//				id = Class.forName(mm.getClassName()).getDeclaredField(mm.getPrimaryKey()).getInt(o);
-//			} catch (IllegalArgumentException e) {
-//				e.printStackTrace();
-//			} catch (IllegalAccessException e) {
-//				e.printStackTrace();
-//			} catch (NoSuchFieldException e) {
-//				e.printStackTrace();
-//			} catch (SecurityException e) {
-//				e.printStackTrace();
-//			} catch (ClassNotFoundException e) {
-//				e.printStackTrace();
-//			}
-			
-			pstmt.setInt(1, id);
+			PreparedStatement pstmt = conn.prepareStatement(sql.toString());			
+			pstmt.setInt(1, getPrimaryKey(mm, o));
 			System.out.println(pstmt);
 			pstmt.execute();
 
@@ -181,7 +185,7 @@ public class PersistenceLayer {
 
 	}
 
-	public void updateObject(Metamodel mm, Object objToUpdate, Object valueForUpdate, Object primaryKey) {
+	public void updateObject(Metamodel mm, Object objToUpdate, Object valueForUpdate) {
 		try (Connection conn = conFact.getConnection()) {
 
 			List<Column> cols = mm.getColumns();
@@ -194,7 +198,7 @@ public class PersistenceLayer {
 					PreparedStatement pstmt = conn.prepareStatement(sql.toString());
 					
 					pstmt.setObject(1, valueForUpdate);
-					pstmt.setObject(2, primaryKey);
+					pstmt.setInt(2, getPrimaryKey(mm, objToUpdate));
 					
 					pstmt.executeQuery();
 				}
