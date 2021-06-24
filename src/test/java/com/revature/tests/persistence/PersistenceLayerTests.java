@@ -88,4 +88,9 @@ public class PersistenceLayerTests {
     	for (Object o : persist.readAllObject(mm2))
     		printAccount((Account) o);
     }
+    
+    @Test
+    public void test_8readAccount() {
+    	printAccount((Account) persist.readObject(mm2, 1));
+    }
 }
