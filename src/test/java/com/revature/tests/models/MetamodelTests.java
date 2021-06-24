@@ -1,4 +1,4 @@
-package com.revature;
+package com.revature.tests.models;
 
 import com.revature.model.Metamodel;
 import com.revature.models.User;

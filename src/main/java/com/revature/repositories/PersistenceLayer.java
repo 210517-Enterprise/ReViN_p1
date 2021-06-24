@@ -4,6 +4,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+
+import java.math.BigDecimal;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -50,11 +53,11 @@ public class PersistenceLayer {
 
 	/*
 	 * Adds a new Object with the corresponding Metamodel
-	 * 
+	 *
 	 * @param mm The Metamodel associated with the new object
-	 * 
+	 *
 	 * @param newObj The new object to added to the table
-	 * 
+	 *
 	 * @return the id of the new object
 	 */
 	public int addObject(Metamodel mm, Object newObj) {
@@ -172,7 +175,7 @@ public class PersistenceLayer {
 			String sql = "DELETE FROM " + mm.getTableName() + " WHERE " + mm.getPrimaryKey() + "= ?";
 
 			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-			pstmt.setInt(1, primaryKey);
+
 			System.out.println(pstmt);
 			pstmt.execute();
 
@@ -252,9 +255,10 @@ public class PersistenceLayer {
 		return false;
 	}
 
-	public List<String> readAllObject(Metamodel mm) {
 
-		List<String> objects = new ArrayList<String>();
+	public List<Object> readAllObject(Metamodel mm) {
+		List<Object> objects = new ArrayList<>();
+
 
 		try (Connection conn = conFact.getConnection()) {
 			String sql = "SELECT * FROM " + mm.getTableName();
@@ -263,29 +267,45 @@ public class PersistenceLayer {
 			System.out.println(rs);
 
 			int i = 0;
-			while (rs.next()) {
-				String object = "";
+
+			while(rs.next()) {
+				Object object = Class.forName(mm.getClassName()).getDeclaredConstructor().newInstance();
+
 				List<Column> cols = mm.getColumns();
 				for (Column col : cols) {
-					object += col.getColName() + "=" + rs.getString(col.getColName()) + ":";
+					String sqlColName = col.getColName();
+					String javaColName = mm.getJavaName(sqlColName);
+
+					Field field = Class.forName(mm.getClassName()).getDeclaredField(javaColName);
+					field.setAccessible(true);
+
+					if (field.getType().getName().equals("double")){
+						field.set(object, ((BigDecimal) rs.getObject(sqlColName)).doubleValue());
+					}else if (field.getType().getName().equals("float")){
+						field.set(object, ((BigDecimal) rs.getObject(sqlColName)).floatValue());
+					}else if (field.getType().getName().equals("long")){
+						field.set(object, ((BigDecimal) rs.getObject(sqlColName)).longValue());
+					}else {
+						field.set(object, rs.getObject(sqlColName));
+					}
 				}
 				System.out.println(object);
 				objects.add(object);
-				// System.out.println(rs.getInt("id") + " " + rs.getString("username") + " " +
-				// rs.getString("pwd") + " " + rs.getObject("accounts") + " " +
-				// rs.getBoolean("citizen") + " " + rs.getInt("net_worth"));
+
 				i++;
 			}
 			System.out.println("rs.next call count " + i);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+		} catch (SQLException | ClassNotFoundException | NoSuchMethodException | NoSuchFieldException
+				| InvocationTargetException | InstantiationException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
 		return objects;
 	}
 
-	public String readObject(Metamodel mm, int primaryKey) {
-		String object = "";
+
+	public Object readObject(Metamodel mm, int primaryKey) {
+		Object object = null;
+
 
 		try (Connection conn = conFact.getConnection()) {
 			String sql = "SELECT * FROM " + mm.getTableName() + " WHERE " + mm.getPrimaryKey() + " = " + primaryKey;
@@ -294,19 +314,39 @@ public class PersistenceLayer {
 			System.out.println(rs);
 
 			int i = 0;
-			while (rs.next()) {
+
+			while(rs.next()) {
+				object = Class.forName(mm.getClassName()).getDeclaredConstructor().newInstance();
+
 				List<Column> cols = mm.getColumns();
 				for (Column col : cols) {
-					object += col.getColName() + "=" + rs.getString(col.getColName()) + ":";
+					String sqlColName = col.getColName();
+					String javaColName = mm.getJavaName(sqlColName);
+
+					Field field = Class.forName(mm.getClassName()).getDeclaredField(javaColName);
+					field.setAccessible(true);
+
+					if (field.getType().getName().equals("double")) {
+						field.set(object, ((BigDecimal) rs.getObject(sqlColName)).doubleValue());
+					} else if (field.getType().getName().equals("float")) {
+						field.set(object, ((BigDecimal) rs.getObject(sqlColName)).floatValue());
+					} else if (field.getType().getName().equals("long")) {
+						field.set(object, ((BigDecimal) rs.getObject(sqlColName)).longValue());
+					} else {
+						field.set(object, rs.getObject(sqlColName));
+					}
+
 				}
+
 				System.out.println(object);
 				i++;
 			}
 			System.out.println("rs.next call count " + i);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+		} catch (SQLException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException
+				| NoSuchFieldException | InstantiationException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
+
 		return object;
 	}
 }

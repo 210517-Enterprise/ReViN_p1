@@ -1,4 +1,4 @@
-package com.revature;
+package com.revature.tests.annotations;
 
 import com.revature.annotations.ColumnField;
 import com.revature.models.User;
