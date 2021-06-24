@@ -6,6 +6,8 @@ import com.revature.service.RevinService;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 
 public class ServiceTests {
@@ -36,5 +38,36 @@ public class ServiceTests {
         service.addClass(Account.class);
         User u = new User("Joey", "Wheeler");
         assertEquals(true, service.addObject(User.class, u));
+    }
+
+    @Test
+    public void test_GetAllList() {
+        service.addClass(User.class);
+        User u = new User("Joe", "Doe");
+        User u2 = new User("Mary", "Jane");
+        User u3 = new User("Karen", "Ashley");
+        service.addObject(User.class, u);
+        service.addObject(User.class, u2);
+        service.addObject(User.class, u3);
+        List<User> list = service.getList(User.class);
+
+        for (User user : list) {
+            System.out.println(user);
+        }
+    }
+
+    @Test
+    public void test_GetOneObject() {
+        service.addClass(User.class);
+        User u = new User("Joe", "Doe");
+        User u2 = new User("Mary", "Jane");
+        User u3 = new User("Karen", "Ashley");
+        service.addObject(User.class, u);
+        service.addObject(User.class, u2);
+        service.addObject(User.class, u3);
+
+        assertEquals("Joe", service.get(User.class, 1).getUsername());
+        assertEquals("Mary", service.get(User.class, 2).getUsername());
+        assertEquals("Karen", service.get(User.class, 3).getUsername());
     }
 }
