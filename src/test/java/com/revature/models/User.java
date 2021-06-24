@@ -46,4 +46,54 @@ public class User {
         this.password = password;
         this.accounts = accounts;
     }
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public List<Account> getAccounts() {
+		return accounts;
+	}
+
+	public void setAccounts(List<Account> accounts) {
+		this.accounts = accounts;
+	}
+
+	public boolean isCitizen() {
+		return isCitizen;
+	}
+
+	public void setCitizen(boolean isCitizen) {
+		this.isCitizen = isCitizen;
+	}
+
+	public double getNetWorth() {
+		return netWorth;
+	}
+
+	public void setNetWorth(double netWorth) {
+		this.netWorth = netWorth;
+	}
+    
+    
 }

@@ -11,7 +11,7 @@ public class MetamodelTests {
     @Test
     public void test_GetAllCols() {
         Metamodel mm = new Metamodel(User.class);
-        assertEquals(4, mm.getColumns().size());
+        assertEquals(6, mm.getColumns().size());
     }
 
     @Test
