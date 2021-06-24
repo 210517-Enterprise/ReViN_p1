@@ -48,7 +48,7 @@ public class PersistenceLayerTests {
     
     @Test
     public void test_3DeleteUser() {
-    	persist.deleteObject(mm, new User(4, "Karen", "Ashley"));
+    	persist.deleteObject(mm, 3);
     }
     
     public static void printUser(User u) {
@@ -93,4 +93,21 @@ public class PersistenceLayerTests {
     public void test_8readAccount() {
     	printAccount((Account) persist.readObject(mm2, 1));
     }
+
+    
+    @Test 
+    public void test_6updateUser() {
+    	User u = new User("Dan", "Popscicle");
+    	int id = persist.addObject(mm, u );
+    	u.setId(id);
+    	u.setUsername("Danny");
+    	u.setPassword("newPassword");
+    	u.setCitizen(false);
+    	u.setNetWorth(500_000);
+    	persist.updateObject(mm, u);
+    	
+    }
 }
+
+
+
