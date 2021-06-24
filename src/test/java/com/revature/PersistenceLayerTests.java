@@ -33,9 +33,9 @@ public class PersistenceLayerTests {
         User u2 = new User("Mary", "Jane");
         User u3 = new User("Karen", "Ashley");
         Metamodel mm = new Metamodel(User.class);
-//        persist.addObject(mm, u);
-//        persist.addObject(mm, u2);
-//        persist.addObject(mm, u3);
+        persist.addObject(mm, u);
+        persist.addObject(mm, u2);
+        persist.addObject(mm, u3);
     }
     
     
