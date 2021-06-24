@@ -56,7 +56,7 @@ public class PersistenceLayerTests {
     
     @Test
     public void test_3DeleteUser() {
-    	persist.deleteObject(mm, new User(3, "Karen", "Ashley"));
+    	persist.deleteObject(mm, 3);
     }
     
     @Test
