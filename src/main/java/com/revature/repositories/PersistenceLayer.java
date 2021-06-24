@@ -75,7 +75,7 @@ public class PersistenceLayer {
 			sql.append(") VALUES ");
 
 			numPrepared.deleteCharAt(numPrepared.length() - 1);
-			numPrepared.append(")");
+			numPrepared.append(") RETURNING " + mm.getTableName() + ".id");
 
 			sql.append(numPrepared);
 
@@ -103,13 +103,15 @@ public class PersistenceLayer {
 				pstmt.setObject(count, f.get(newObj));
 				count++;
 			}
-
+			
+			System.out.println(pstmt);
 			ResultSet rs;
 
 			// Generates a value if successful
 			if ((rs = pstmt.executeQuery()) != null) {
 				rs.next();
 				int id = rs.getInt(1);
+				System.out.println("The id returned from insert is "+id);
 				return id;
 			}
 		} catch (SQLException | NoSuchFieldException | IllegalAccessException e) {
