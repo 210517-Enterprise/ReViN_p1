@@ -50,7 +50,6 @@ public class RevinService {
     }
 
     public boolean addObject(Class<?> clazz, Object o) {
-        Class<?> temp = o.getClass();
         if (!classIsPersisted(clazz) || !o.getClass().equals(clazz)) {
             return false;
         }
@@ -65,19 +64,28 @@ public class RevinService {
         return true;
     }
 
-    public List<?> getList(Class<?> clazz) {
+    public <T> List<T> getList(Class<T> clazz) {
         if (!classIsPersisted(clazz)) {
             return null;
         }
 
         if (cached(clazz) && !dbChanged) {
-            return cache.get(clazz);
+            return (List<T>)cache.get(clazz);
         }
 
         Metamodel mm = new Metamodel(clazz);
-        //cache.put(mm, persist.readAllObject(mm));
         dbChanged = false;
-        return persist.readAllObject(mm);
+        return (List<T>)persist.readAllObject(mm);
+    }
+
+    public <T> T get(Class<T> clazz, int primaryKey) {
+        if (!classIsPersisted(clazz)) {
+            return null;
+        }
+
+        Metamodel mm = new Metamodel(clazz);
+        dbChanged = false;
+        return (T)persist.readObject(mm, primaryKey);
     }
 
     private boolean cached(Class<?> clazz) {

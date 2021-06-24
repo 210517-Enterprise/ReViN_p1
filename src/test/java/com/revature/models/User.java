@@ -94,6 +94,16 @@ public class User {
 	public void setNetWorth(double netWorth) {
 		this.netWorth = netWorth;
 	}
-    
-    
+
+	@Override
+	public String toString() {
+		return "User{" +
+				"id=" + id +
+				", username='" + username + '\'' +
+				", password='" + password + '\'' +
+				", accounts=" + accounts +
+				", isCitizen=" + isCitizen +
+				", netWorth=" + netWorth +
+				'}';
+	}
 }
