@@ -3,13 +3,16 @@ package com.revature.repositories;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import com.revature.annotations.ColumnField;
 import com.revature.connection.ConnectionFactory;
 import com.revature.model.Metamodel;
 import com.revature.util.Column;
@@ -94,10 +97,9 @@ public class PersistenceLayer {
 
 				// Grab the specific field
 				Field f = newObj.getClass().getDeclaredField(javaColName);
-
+				
 				// Access private fields
 				f.setAccessible(true);
-
 				// Skip if it's serial
 				if (col.getConstraints().contains("SERIAL")) {
 					continue;
@@ -116,13 +118,13 @@ public class PersistenceLayer {
 		}
 		return -1;
 	}
-	
+
 	public static int getPrimaryKey(Metamodel mm, Object o) {
 		int id = 0;
 		try {
 			for (Method m : Class.forName(mm.getClassName()).getMethods()) {
-				//This assumes that getId is the method for getting the PrimaryKey of an object
-				//Maybe there is some way that we could create/set an annotation that would
+				// This assumes that getId is the method for getting the PrimaryKey of an object
+				// Maybe there is some way that we could create/set an annotation that would
 				// specify the method which returns the PrimaryKey
 				if (m.getName().equals("getId")) {
 					id = (int) m.invoke(o);
@@ -145,8 +147,7 @@ public class PersistenceLayer {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
+
 //		We could also set the PrimaryKey to be public, but then User, etc. would not be a bean 			
 //		try {
 //			//This fails because the id field is private
@@ -162,7 +163,7 @@ public class PersistenceLayer {
 //		} catch (ClassNotFoundException e) {
 //			e.printStackTrace();
 //		}
-		
+
 		return id;
 	}
 
@@ -170,7 +171,7 @@ public class PersistenceLayer {
 		try (Connection conn = conFact.getConnection()) {
 			String sql = "DELETE FROM " + mm.getTableName() + " WHERE " + mm.getPrimaryKey() + "= ?";
 
-			PreparedStatement pstmt = conn.prepareStatement(sql.toString());			
+			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
 			pstmt.setInt(1, getPrimaryKey(mm, o));
 			System.out.println(pstmt);
 			pstmt.execute();
@@ -181,52 +182,103 @@ public class PersistenceLayer {
 
 	}
 
-	public void updateObject(Metamodel mm, Object objToUpdate, Object valueForUpdate) {
+	public boolean updateObject(Metamodel mm, Object objToUpdate) {
 		try (Connection conn = conFact.getConnection()) {
+			StringBuilder sql = new StringBuilder("UPDATE " + mm.getTableName() + " SET ");
+			StringBuilder qualifier = new StringBuilder(" WHERE ");
 
 			List<Column> cols = mm.getColumns();
 
-			for(Column col : cols) {
-				if(col.getColName().equals(objToUpdate)){
-					String sql = "UPDATE " + mm.getTableName() + " SET " + col.getColName() + "= ? WHERE "
-							+ mm.getPrimaryKey() + "= ?";
-					
-					PreparedStatement pstmt = conn.prepareStatement(sql.toString());
-					
-					pstmt.setObject(1, valueForUpdate);
-					pstmt.setInt(2, getPrimaryKey(mm, objToUpdate));
-					
-					pstmt.executeQuery();
+			for (Column col : cols) {
+				String columnName = col.getColName();
+				// Skip if serial
+				if (col.getConstraints().contains("PRIMARY KEY")) {
+					qualifier.append(columnName).append(" = ?");
+				} else {
+					if (col.getConstraints().equalsIgnoreCase("serial")) {
+						continue;
+					}
+
+					sql.append(columnName).append(" = ?, ");
+
 				}
+
 			}
 
+			int index = sql.lastIndexOf(", ");
+			sql.delete(index, index + 2);
+			sql.append(qualifier);
+			
+			System.out.println(sql);
+			
+			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
 
-		} catch (SQLException | SecurityException | IllegalArgumentException e) {
+			int count = 1;
+			
+			for (Column col : cols) {
+				String sqlColName = col.getColName();
+				String javaColName = mm.getJavaName(sqlColName);
+
+				Object insert = null;
+
+				try {
+					Field fToInsert = objToUpdate.getClass().getDeclaredField(javaColName);
+					if (Modifier.isPrivate(fToInsert.getModifiers())) {
+						fToInsert.setAccessible(true);
+					}
+					System.out.println(objToUpdate.getClass().getDeclaredField(javaColName));
+					System.out.println(fToInsert.get(objToUpdate));
+					insert = fToInsert.get(objToUpdate);
+					//System.out.println(insert);
+				} catch (NoSuchFieldException | IllegalAccessException e) {
+					e.printStackTrace();
+				}
+				try {
+					if (col.getConstraints().contains("PRIMARY KEY")) {
+						pstmt.setObject(cols.size(), insert);
+					} else {
+
+						pstmt.setObject(count, insert);
+
+						count++;
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			System.out.println(pstmt);
+			pstmt.execute();
+			return true;
+
+		} catch (SQLException | SecurityException | IllegalArgumentException | NullPointerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return false;
 	}
-	
+
 	public List<String> readAllObject(Metamodel mm) {
-		
+
 		List<String> objects = new ArrayList<String>();
-		
+
 		try (Connection conn = conFact.getConnection()) {
 			String sql = "SELECT * FROM " + mm.getTableName();
 			System.out.println(sql);
 			ResultSet rs = conn.prepareStatement(sql).executeQuery();
 			System.out.println(rs);
-			
+
 			int i = 0;
-			while(rs.next()) {
+			while (rs.next()) {
 				String object = "";
 				List<Column> cols = mm.getColumns();
 				for (Column col : cols) {
-					object += col.getColName()+"="+rs.getString(col.getColName())+":";
+					object += col.getColName() + "=" + rs.getString(col.getColName()) + ":";
 				}
 				System.out.println(object);
 				objects.add(object);
-				//System.out.println(rs.getInt("id") + " " + rs.getString("username") + " " + rs.getString("pwd") + " " + rs.getObject("accounts") + " " + rs.getBoolean("citizen") + " " + rs.getInt("net_worth"));
+				// System.out.println(rs.getInt("id") + " " + rs.getString("username") + " " +
+				// rs.getString("pwd") + " " + rs.getObject("accounts") + " " +
+				// rs.getBoolean("citizen") + " " + rs.getInt("net_worth"));
 				i++;
 			}
 			System.out.println("rs.next call count " + i);
@@ -236,21 +288,21 @@ public class PersistenceLayer {
 		}
 		return objects;
 	}
-	
+
 	public String readObject(Metamodel mm, int primaryKey) {
 		String object = "";
-		
+
 		try (Connection conn = conFact.getConnection()) {
 			String sql = "SELECT * FROM " + mm.getTableName() + " WHERE " + mm.getPrimaryKey() + " = " + primaryKey;
 			System.out.println(sql);
 			ResultSet rs = conn.prepareStatement(sql).executeQuery();
 			System.out.println(rs);
-			
+
 			int i = 0;
-			while(rs.next()) {
+			while (rs.next()) {
 				List<Column> cols = mm.getColumns();
 				for (Column col : cols) {
-					object += col.getColName()+"="+rs.getString(col.getColName())+":";
+					object += col.getColName() + "=" + rs.getString(col.getColName()) + ":";
 				}
 				System.out.println(object);
 				i++;
