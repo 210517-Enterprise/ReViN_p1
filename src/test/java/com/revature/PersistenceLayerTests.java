@@ -9,6 +9,8 @@ import com.revature.models.User;
 import com.revature.repositories.PersistenceLayer;
 import com.revature.util.Database;
 
+import static org.junit.Assert.assertEquals;
+
 public class PersistenceLayerTests {
 	PersistenceLayer persist = new PersistenceLayer(new ConnectionFactory(new Database()));
 	
@@ -28,8 +30,11 @@ public class PersistenceLayerTests {
 
         User u = new User("John", "Doe");
         Account a = new Account(1, 1_000_000.00);
-        persist.addObject(mm, u);
-        persist.addObject(mm2, a);
+        int user_id = persist.addObject(mm, u);
+        int acc_id = persist.addObject(mm2, a);
+
+        assertEquals(1, user_id);
+        assertEquals(1, acc_id);
     }
 
     @Test
