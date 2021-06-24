@@ -13,16 +13,16 @@ public class User {
     @ColumnField(columnName = "username", unique = true, canBeNull = false)
     private String username;
 
-    @ColumnField(columnName = "pwd", canBeNull = false)
+    @ColumnField(columnName = "password", canBeNull = false)
     private String password;
 
     @ColumnField(columnName = "accounts", fkey = true)
     private List<Account> accounts;
 
-    @ColumnField(columnName = "citizen")
+    @ColumnField(columnName = "isCitizen")
     private boolean isCitizen = true;
 
-    @ColumnField(columnName = "net_worth")
+    @ColumnField(columnName = "netWorth")
     private double netWorth = 1_000_000;
 
     public User() {

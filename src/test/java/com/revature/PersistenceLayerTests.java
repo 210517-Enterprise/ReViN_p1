@@ -41,13 +41,23 @@ public class PersistenceLayerTests {
     	persist.deleteObject(mm, new User(4, "Karen", "Ashley"));
     }
     
+    public static void printUser(User u) {
+    	System.out.println("[id = " + u.getId() 
+		 + ", username = " + u.getUsername() 
+		 + ", password = " + u.getPassword()
+		 + ", isCitizen = " + u.isCitizen()
+		 + ", accounts = " + u.getAccounts()
+		 + ", netWorth = " + u.getNetWorth() +"]");
+    }
+    
     @Test
     public void test_4readAllUser() {
-    	persist.readAllObject(mm);
+    	for (Object o : persist.readAllObject(mm))
+    		printUser((User) o);
     }
     
     @Test
     public void test_5readUser() {
-    	persist.readObject(mm, 3);
+    	printUser((User) persist.readObject(mm, 3));
     }
 }
