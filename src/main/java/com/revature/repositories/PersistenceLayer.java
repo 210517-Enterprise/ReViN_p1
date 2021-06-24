@@ -170,13 +170,37 @@ public class PersistenceLayer {
 		return id;
 	}
 
-	public void deleteObject(Metamodel mm, int primaryKey) {
+	public void deleteObject(Metamodel mm, Object objToDelete) {
 		try (Connection conn = conFact.getConnection()) {
 			String sql = "DELETE FROM " + mm.getTableName() + " WHERE " + mm.getPrimaryKey() + "= ?";
 
+			List<Column> cols = mm.getColumns();
+			// for loop to create sql statement
 			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
+			for (Column col : cols) {
+				String sqlColName = col.getColName();
+				String javaColName = mm.getJavaName(sqlColName);
+
+				Object insert = null;
+
+				try {
+					Field fToInsert = objToDelete.getClass().getDeclaredField(javaColName);
+					if (Modifier.isPrivate(fToInsert.getModifiers())) {
+						fToInsert.setAccessible(true);
+					}
+					insert = fToInsert.get(objToDelete);
+				} catch (NoSuchFieldException | IllegalAccessException e) {
+					e.printStackTrace();
+				}
+				if (col.getConstraints().contains("PRIMARY KEY")) {
+					pstmt.setObject(1, insert);
+				}
+			}
+			
+
 
 			System.out.println(pstmt);
+			
 			pstmt.execute();
 
 		} catch (SQLException e) {
@@ -205,6 +229,7 @@ public class PersistenceLayer {
 					sql.append(columnName).append(" = ?, ");
 
 				}
+				
 
 			}
 
