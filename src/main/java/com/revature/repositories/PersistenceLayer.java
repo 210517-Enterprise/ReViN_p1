@@ -166,12 +166,12 @@ public class PersistenceLayer {
 		return id;
 	}
 
-	public void deleteObject(Metamodel mm, Object o) {
+	public void deleteObject(Metamodel mm, int primaryKey) {
 		try (Connection conn = conFact.getConnection()) {
 			String sql = "DELETE FROM " + mm.getTableName() + " WHERE " + mm.getPrimaryKey() + "= ?";
 
 			PreparedStatement pstmt = conn.prepareStatement(sql.toString());			
-			pstmt.setInt(1, getPrimaryKey(mm, o));
+			pstmt.setInt(1, primaryKey);
 			System.out.println(pstmt);
 			pstmt.execute();
 
@@ -181,22 +181,21 @@ public class PersistenceLayer {
 
 	}
 
-	public void updateObject(Metamodel mm, Object objToUpdate, Object valueForUpdate) {
+	public void updateObject(Metamodel mm, String colToUpdate, Object valueForUpdate, int primaryKey) {
 		try (Connection conn = conFact.getConnection()) {
-
 			List<Column> cols = mm.getColumns();
 
 			for(Column col : cols) {
-				if(col.getColName().equals(objToUpdate)){
+				if(col.getColName().equals(colToUpdate)){
 					String sql = "UPDATE " + mm.getTableName() + " SET " + col.getColName() + "= ? WHERE "
 							+ mm.getPrimaryKey() + "= ?";
 					
 					PreparedStatement pstmt = conn.prepareStatement(sql.toString());
 					
 					pstmt.setObject(1, valueForUpdate);
-					pstmt.setInt(2, getPrimaryKey(mm, objToUpdate));
+					pstmt.setInt(2, primaryKey);
 					
-					pstmt.executeQuery();
+					pstmt.executeUpdate();
 				}
 			}
 

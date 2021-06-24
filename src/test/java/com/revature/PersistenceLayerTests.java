@@ -56,7 +56,7 @@ public class PersistenceLayerTests {
     
     @Test
     public void test_3DeleteUser() {
-    	persist.deleteObject(mm, new User(4, "Karen", "Ashley"));
+    	persist.deleteObject(mm, 4);
     }
     
     @Test
@@ -67,5 +67,13 @@ public class PersistenceLayerTests {
     @Test
     public void test_5readUser() {
     	persist.readObject(mm, 3);
+    }
+    
+    @Test
+    public void test_6updateUser() {
+    	persist.updateObject(mm, "username", "newUsername14", 10);
+    	persist.updateObject(mm, "pwd", "newpassword", 10);
+    	persist.updateObject(mm, "citizen", false, 10);
+    	persist.updateObject(mm, "net_worth", 500_000, 10);
     }
 }
