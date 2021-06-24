@@ -76,4 +76,16 @@ public class PersistenceLayerTests {
     	persist.addObject(mm2, new Account(2, 10));
     	persist.addObject(mm2, new Account(3, 20));
     }
+    
+    public static void printAccount(Account a) {
+    	System.out.println("[id = " + a.getId()
+    					  +", AccOwner = " + a.getAccOwner()
+    					  +", balance = " + a.getBalance() + "]");
+    }
+    
+    @Test
+    public void test_7readAllAccount() {
+    	for (Object o : persist.readAllObject(mm2))
+    		printAccount((Account) o);
+    }
 }
