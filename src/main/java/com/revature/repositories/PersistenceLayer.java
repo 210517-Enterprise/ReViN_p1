@@ -268,6 +268,10 @@ public class PersistenceLayer {
 					try {
 						if (field.getType().getName().equals("double")){
 							field.set(object, ((BigDecimal) rs.getObject(col.getColName())).doubleValue());
+						}else if (field.getType().getName().equals("float")){
+							field.set(object, ((BigDecimal) rs.getObject(col.getColName())).floatValue());
+						}else if (field.getType().getName().equals("long")){
+							field.set(object, ((BigDecimal) rs.getObject(col.getColName())).longValue());
 						}else {
 							field.set(object, rs.getObject(col.getColName()));
 						}
@@ -349,6 +353,10 @@ public class PersistenceLayer {
 					try {
 						if (field.getType().getName().equals("double")){
 							field.set(object, ((BigDecimal) rs.getObject(col.getColName())).doubleValue());
+						}else if (field.getType().getName().equals("float")){
+							field.set(object, ((BigDecimal) rs.getObject(col.getColName())).floatValue());
+						}else if (field.getType().getName().equals("long")){
+							field.set(object, ((BigDecimal) rs.getObject(col.getColName())).longValue());
 						}else {
 							field.set(object, rs.getObject(col.getColName()));
 						}
