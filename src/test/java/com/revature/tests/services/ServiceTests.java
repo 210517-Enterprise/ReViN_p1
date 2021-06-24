@@ -70,4 +70,19 @@ public class ServiceTests {
         assertEquals("Mary", service.get(User.class, 2).getUsername());
         assertEquals("Karen", service.get(User.class, 3).getUsername());
     }
+
+    @Test
+    public void test_AddAndSetCorrectPK() {
+        service.addClass(User.class);
+        User u = new User("Joe", "Doe");
+        User u2 = new User("Mary", "Jane");
+        User u3 = new User("Karen", "Ashley");
+        service.addObject(User.class, u);
+        service.addObject(User.class, u2);
+        service.addObject(User.class, u3);
+
+        assertEquals(1, u.getId());
+        assertEquals(2, u2.getId());
+        assertEquals(3, u3.getId());
+    }
 }
