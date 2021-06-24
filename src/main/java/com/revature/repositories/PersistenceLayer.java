@@ -188,7 +188,7 @@ public class PersistenceLayer {
 			StringBuilder qualifier = new StringBuilder(" WHERE ");
 
 			List<Column> cols = mm.getColumns();
-
+			// for loop to create sql statement
 			for (Column col : cols) {
 				String columnName = col.getColName();
 				// Skip if serial
@@ -214,7 +214,7 @@ public class PersistenceLayer {
 			PreparedStatement pstmt = conn.prepareStatement(sql.toString());
 
 			int count = 1;
-			
+			// for loop to add updated values to sql statement
 			for (Column col : cols) {
 				String sqlColName = col.getColName();
 				String javaColName = mm.getJavaName(sqlColName);
@@ -226,8 +226,6 @@ public class PersistenceLayer {
 					if (Modifier.isPrivate(fToInsert.getModifiers())) {
 						fToInsert.setAccessible(true);
 					}
-					System.out.println(objToUpdate.getClass().getDeclaredField(javaColName));
-					System.out.println(fToInsert.get(objToUpdate));
 					insert = fToInsert.get(objToUpdate);
 					//System.out.println(insert);
 				} catch (NoSuchFieldException | IllegalAccessException e) {
