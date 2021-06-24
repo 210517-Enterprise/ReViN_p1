@@ -40,4 +40,9 @@ public class PersistenceLayerTests {
     public void test_3DeleteUser() {
     	persist.deleteObject(mm, new User(4, "Karen", "Ashley"));
     }
+    
+    @Test
+    public void test_4readAllUser() {
+    	persist.readAllObject(mm);
+    }
 }

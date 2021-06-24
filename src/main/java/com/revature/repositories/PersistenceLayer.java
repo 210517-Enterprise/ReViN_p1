@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.revature.connection.ConnectionFactory;
@@ -209,5 +210,35 @@ public class PersistenceLayer {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public List<String> readAllObject(Metamodel mm) {
+		
+		List<String> objects = new ArrayList<String>();
+		
+		try (Connection conn = conFact.getConnection()) {
+			String sql = "SELECT * FROM " + mm.getTableName();
+			System.out.println(sql);
+			ResultSet rs = conn.prepareStatement(sql).executeQuery();
+			System.out.println(rs);
+			
+			int i = 0;
+			while(rs.next()) {
+				String object = "";
+				List<Column> cols = mm.getColumns();
+				for (Column col : cols) {
+					object += col.getColName()+"="+rs.getString(col.getColName())+":";
+				}
+				System.out.println(object);
+				objects.add(object);
+				//System.out.println(rs.getInt("id") + " " + rs.getString("username") + " " + rs.getString("pwd") + " " + rs.getObject("accounts") + " " + rs.getBoolean("citizen") + " " + rs.getInt("net_worth"));
+				i++;
+			}
+			System.out.println("rs.next call count " + i);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return objects;
 	}
 }
