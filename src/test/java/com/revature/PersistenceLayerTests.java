@@ -1,7 +1,9 @@
 package com.revature;
 
 import com.revature.models.Account;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 
 import com.revature.connection.ConnectionFactory;
 import com.revature.model.Metamodel;
@@ -11,13 +13,13 @@ import com.revature.util.Database;
 
 import static org.junit.Assert.assertEquals;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class PersistenceLayerTests {
 	PersistenceLayer persist = new PersistenceLayer(new ConnectionFactory(new Database()));
+	Metamodel mm = new Metamodel(User.class);
 	
     @Test
-    public void test_CreateTable() {
-
-        Metamodel mm = new Metamodel(User.class);
+    public void test_0CreateTable() {
         persist.createTable(mm);
     }
 
@@ -37,21 +39,33 @@ public class PersistenceLayerTests {
         assertEquals(1, acc_id);
     }
 
-    @Test
-    public void test_AddUserToTable() {
+    public void test_1AddUserToTable() {
         User u = new User(1,"John", "Doe");
-        Metamodel mm = new Metamodel(User.class);
         persist.addObject(mm, u);
     }
 
     @Test
-    public void test_AddSerialUsersToTable() {
+    public void test_2AddSerialUsersToTable() {
         User u = new User("Joe", "Doe");
         User u2 = new User("Mary", "Jane");
         User u3 = new User("Karen", "Ashley");
-        Metamodel mm = new Metamodel(User.class);
         persist.addObject(mm, u);
         persist.addObject(mm, u2);
         persist.addObject(mm, u3);
+    }
+    
+    @Test
+    public void test_3DeleteUser() {
+    	persist.deleteObject(mm, new User(4, "Karen", "Ashley"));
+    }
+    
+    @Test
+    public void test_4readAllUser() {
+    	persist.readAllObject(mm);
+    }
+    
+    @Test
+    public void test_5readUser() {
+    	persist.readObject(mm, 3);
     }
 }

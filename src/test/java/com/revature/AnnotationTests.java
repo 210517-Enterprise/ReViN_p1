@@ -14,7 +14,7 @@ public class AnnotationTests {
     public void test_GetAllColumns() {
         Class<?> clazz = User.class;
         Field[] fields = clazz.getDeclaredFields();
-        assertEquals(4, fields.length);
+        assertEquals(6, fields.length);
     }
 
     @Test
