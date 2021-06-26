@@ -106,7 +106,7 @@ public class RevinService {
 
         for (Metamodel mm : currClasses) {
             if (mm.getClassName().equals(clazz.getName())) {
-                //persist.updateObject(mm, o);
+                persist.updateObject(mm, o);
                 dbChanged = true;
             }
         }
